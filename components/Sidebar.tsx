@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <button
           type="button"
           onClick={onToggleCollapse}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 shadow-md"
+          className="absolute -right-3 top-4 w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 shadow-md"
         >
           <i className={`fa-solid ${collapsed ? 'fa-chevron-right' : 'fa-chevron-left'} text-xs`}></i>
         </button>
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
             >
               <i className="fa-solid fa-plus"></i>
-              New test
+              New Test
             </button>
           </div>
 
