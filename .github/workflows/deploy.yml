@@ -40,20 +40,18 @@ jobs:
           path: dist
 
   deploy:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    needs: lint-and-build
+    name: Deploy to Vercel
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    needs: lint-and-build
+    if: success()
     steps:
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
-      - name: Instal vercel cli
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
         run: npm install -g vercel
+
       - name: Deploy to Vercel
-        run: vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --scope=quiz-master
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
