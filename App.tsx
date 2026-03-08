@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
   const [sessions, setSessions] = useState<QuizSession[]>(() => loadSessions());
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const autoNextRef = useRef<number | null>(null);
   const prevStatusRef = useRef<AppStatus | null>(null);
@@ -220,6 +221,8 @@ const App: React.FC = () => {
               deleteSession(id);
               setSessions(loadSessions());
             }}
+            collapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
             isDark={isDark}
             visible={true}
           />
