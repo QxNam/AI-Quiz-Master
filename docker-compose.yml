@@ -1,0 +1,27 @@
+services:
+  app:
+    image: ai-quiz-master:latest
+    build: .
+    container_name: ai-quiz-master
+    ports:
+      - "3000:3000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  # cloudflare-tunnel:
+  #   image: cloudflare/cloudflared:latest             
+  #   container_name: cloudflare-tunnel
+  #   environment:
+  #     - TUNNEL_TOKEN=${TUNNEL_TOKEN:-ey}
+  #   command: tunnel run
+  #   healthcheck:
+  #     test: ["CMD", "cloudflared", "--version"]
+  #     interval: 30s                                   
+  #     timeout: 10s                                   
+  #     retries: 3                                    
+  #     start_period: 10s
+  #   restart: always
+
+    

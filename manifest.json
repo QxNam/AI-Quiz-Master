@@ -1,0 +1,18 @@
+{
+  "name": "AI Quiz Master - Trần Minh",
+  "short_name": "AI Quiz TM",
+  "description": "Ứng dụng trắc nghiệm AI chuẩn SGK Việt Nam - Phát triển bởi Trần Minh",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5607/5607313.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
