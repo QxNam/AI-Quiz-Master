@@ -1,9 +1,25 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Question } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const LOCAL_STORAGE_KEY = 'GEMINI_API_KEY';
+
+export function getGeminiApiKey(): string {
+  if (typeof window !== 'undefined') {
+    try {
+      const v = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (v && v.trim()) return v.trim();
+    } catch {}
+  }
+  return (process.env.GEMINI_API_KEY || process.env.API_KEY || "").trim();
+}
 
 export const generateQuizQuestions = async (subject: string, scope: string, grade: string): Promise<Question[]> => {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error("Chưa có GEMINI_API_KEY. Hãy bấm nút hình chìa khóa để nhập API key.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `Bạn là chuyên gia biên soạn đề thi trắc nghiệm chuẩn SGK Việt Nam cho môn "${subject}" lớp ${grade}, phạm vi kiến thức: "${scope}".
   Hãy tạo đúng 20 câu hỏi trắc nghiệm khách quan với 4 lựa chọn (A, B, C, D) theo cấu trúc ma trận sau:
 

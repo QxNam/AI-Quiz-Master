@@ -24,6 +24,9 @@ const App: React.FC = () => {
   const [endTime, setEndTime] = useState<Date | null>(null);
   const [sessions, setSessions] = useState<QuizSession[]>(() => loadSessions());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [hasSavedApiKey, setHasSavedApiKey] = useState(false);
   
   const autoNextRef = useRef<number | null>(null);
   const prevStatusRef = useRef<AppStatus | null>(null);
@@ -44,12 +47,45 @@ const App: React.FC = () => {
     }
   }, [isDark]);
 
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((e) => {
-        console.error(`Error attempting to enable full-screen mode: ${e.message}`);
-      });
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('GEMINI_API_KEY');
+      setHasSavedApiKey(!!(v && v.trim()));
+    } catch {
+      setHasSavedApiKey(false);
     }
+  }, []);
+
+  const openApiKeyModal = () => {
+    try {
+      const v = localStorage.getItem('GEMINI_API_KEY') || '';
+      setApiKeyInput(v);
+    } catch {
+      setApiKeyInput('');
+    }
+    setIsApiKeyModalOpen(true);
+  };
+
+  const saveApiKey = () => {
+    try {
+      const v = apiKeyInput.trim();
+      if (v) localStorage.setItem('GEMINI_API_KEY', v);
+      else localStorage.removeItem('GEMINI_API_KEY');
+      setHasSavedApiKey(!!v);
+    } catch {}
+    setIsApiKeyModalOpen(false);
+  };
+
+  const toggleFullScreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch((e) => {
+        console.error(`Error attempting to exit full-screen mode: ${e.message}`);
+      });
+      return;
+    }
+    document.documentElement.requestFullscreen().catch((e) => {
+      console.error(`Error attempting to enable full-screen mode: ${e.message}`);
+    });
   };
 
   const startQuiz = async (sub: string, scp: string, gr: string, name: string) => {
@@ -180,6 +216,20 @@ const App: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 flex flex-col ${isDark ? 'bg-slate-950' : 'bg-slate-50'}`}>
+      {shouldHideHeader && (
+        <button
+          onClick={openApiKeyModal}
+          title="Nhập GEMINI_API_KEY"
+          className={`fixed top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center shadow-lg border ${
+            hasSavedApiKey
+              ? 'bg-emerald-600 border-emerald-500 text-white'
+              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
+          }`}
+        >
+          <i className="fa-solid fa-key"></i>
+        </button>
+      )}
+
       {!shouldHideHeader && (
         <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -201,6 +251,9 @@ const App: React.FC = () => {
                 </div>
               </div>
             )}
+            <button onClick={openApiKeyModal} title="Nhập GEMINI_API_KEY" className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <i className="fa-solid fa-key"></i>
+            </button>
             <button onClick={toggleFullScreen} title="Toàn màn hình" className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
               <i className="fa-solid fa-expand"></i>
             </button>
@@ -209,6 +262,62 @@ const App: React.FC = () => {
             </button>
           </div>
         </header>
+      )}
+
+      {isApiKeyModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+          <button
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsApiKeyModalOpen(false)}
+            aria-label="Close"
+          />
+          <div className="relative w-[min(560px,92vw)] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <i className="fa-solid fa-key text-indigo-600 dark:text-indigo-400"></i>
+                  GEMINI_API_KEY
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Key sẽ được lưu trên trình duyệt (localStorage) và được ưu tiên dùng khi tạo đề.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsApiKeyModalOpen(false)}
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                title="Đóng"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <input
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="Nhập GEMINI_API_KEY..."
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm"
+              type="password"
+              autoFocus
+            />
+
+            <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setApiKeyInput('');
+                }}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 font-bold"
+              >
+                Xóa
+              </button>
+              <button
+                onClick={saveApiKey}
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-lg shadow-indigo-500/20"
+              >
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className={`flex flex-1 min-h-0 ${shouldHideHeader ? '' : ''}`}>
